@@ -1,0 +1,5 @@
+insightface
+onnxruntime
+onnx
+numpy
+pillow

@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "version.py"
+
+[project]
+name = "faces-panoptic-plugin"
+dynamic = ["version"]
+description = "Face detection, identification and clustering for Panoptic, with InsightFace"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+]
+
+dependencies = [
+    "insightface",
+    "onnxruntime",
+    "onnx",
+    "numpy",
+    "pillow",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["faces_plugin"]

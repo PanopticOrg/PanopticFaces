@@ -1,41 +1,48 @@
-# Faces — plugin Panoptic
+# PanopticFaces — plugin Panoptic
 
 *[English version](README.en.md)*
 
-Ce plugin trouve les visages dans vos images, les reconnaît et les regroupe.
-Il fonctionne dans [Panoptic](https://github.com/CERES-Sorbonne/Panoptic) et utilise
-InsightFace pour l'analyse des visages.
 
+
+
+
+
+
+
+
+
+
+  
+  
+Ce plugin permet de détecter automatiquement des visages dans les corpus [Panoptic](https://github.com/CERES-Sorbonne/Panoptic). Grâce à un système de galerie vous pouvez choisir quels visages détecter et annoter les noms dans des propriétés "multi tags".
 > **Cadre légal**  
-La reconnaissance faciale traite des données biométriques :  
-le [RGPD](https://www.cnil.fr/fr/biometrie) et le  [règlement européen sur l'IA](https://artificialintelligenceact.eu/fr/) s'appliquent. Renseignez-vous avant de l'utiliser.
+La reconnaissance faciale traite des données biométriques : le [RGPD](https://www.cnil.fr/fr/biometrie) et le  [règlement européen sur l'IA](https://artificialintelligenceact.eu/fr/) s'appliquent.  
+**PanopticFaces** ne publie pas de galerie d'images ni d'embeddings.
 ---
 
 ## Installation
 
 1. Ouvrez Panoptic.
-2. Ajoutez le plugin avec l'adresse de ce dépôt GitHub (ou le dossier sur votre
-   ordinateur).
-3. Les dépendances (`insightface`, `onnxruntime`, `onnx`, `numpy`, `pillow`) sont
-   listées dans `requirements.txt`.
-
-Au premier lancement, le plugin télécharge le modèle `buffalo_l` (environ 280 Mo).
+2. Ajoutez le plugin avec l'adresse de ce dépôt GitHub (ou le dossier sur votre ordinateur)
+3. Le plugin télécharge le modèle `buffalo_l` (environ 280 Mo) automatiquement à la première exécution de **detect_faces**.
 
 ## Utilisation
+Dans la vue grille : Exécuter -> **detect_faces**. À exécuter avant toute autre fonction du plugin. Avant de continuer attendez que la tâche soit complètement finie.
+**PanopticFaces** expose plusieurs types de fonctions dans **Panoptic**.
 
-1. **detect_faces** : cherche les visages dans les images choisies.
-2. Créez une **galerie** de personnes connues, au choix :
-   - choisissez des portraits d'une personne et lancez **add_reference** avec son nom ;
-   - ou lancez **import_gallery** sur un dossier qui contient un sous-dossier par
-     personne (exemple : `galerie/Marie Curie/*.jpg`).
-
-   Chaque photo donne son plus grand visage. 5 à 20 photos variées par personne
-   suffisent.
-3. Après chaque changement de la galerie, tous les visages sont reconnus à nouveau.
-4. **cluster_faces** regroupe les visages inconnus qui se ressemblent. Donnez un nom à
-   un groupe, sélectionnez-le et lancez **add_reference** pour l'ajouter à la galerie.
-5. **find_similar_faces** trouve les images où apparaît un visage proche de celui
-   sélectionné.
+- Clustering : **cluster_faces** permet de regrouper les photos par similarité de visage.
+- Similarité : **find_similar_faces** renvoie les images les plus similaires à celle sélectionnée (typiquement dans la Modal Image de Panoptic) en prenant en compte les visages et non l'image entière.
+- Exécuter : 
+  -  **import_gallery** permet d'importer une galerie de visages sous forme de dossier qui contient un sous-dossier par
+     personne (exemple : `galerie/Marie Curie/*.jpg`)
+  -  **add_reference** pour ajouter manuellement une personne à la galerie en indiquant son nom et un dossier contenant des images.
+  - **forget_faces** : efface les visages des images sélectionnées et vide leurs
+  propriétés. Cochez `everything` pour tout effacer.
+  - **remove_person** : retire une personne de la galerie.
+  - Pour tout effacer d'un coup : supprimez le dossier `plugin_data/faces/` du projet
+    Panoptic.
+  - Si vous avez construit une galerie : supprimez aussi les dossiers `gallery/` et
+    `gallery_cache/` quand vous n'en avez plus besoin.
 
 ## Ce que le plugin ajoute dans Panoptic
 
@@ -49,23 +56,10 @@ Les résultats apparaissent dans le groupe de propriétés **Faces** :
 | Unknown faces | nombre     | les visages que la galerie n'a pas reconnus                    |
 | Person score  | nombre     | la reconnaissance la moins sûre de l'image (triez pour vérifier) |
 
-## Supprimer des données
-
-- **forget_faces** : efface les visages des images sélectionnées et vide leurs
-  propriétés. Cochez `everything` pour tout effacer.
-- **remove_person** : retire une personne de la galerie.
-- Pour tout effacer d'un coup : supprimez le dossier `plugin_data/faces/` du projet
-  Panoptic.
-- Si vous avez construit une galerie : supprimez aussi les dossiers `gallery/` et
-  `gallery_cache/` quand vous n'en avez plus besoin.
-
-Ces actions permettent de répondre à une demande d'effacement (article 17 du RGPD).
 
 ## Construire votre galerie
 
-La galerie, ce sont les personnes que le plugin sait reconnaître. **Aucune galerie
-n'est fournie** : chacun construit la sienne, sur son ordinateur, pour son propre
-projet. Ne la partagez pas (voir plus bas).
+La galerie est la collection d'images de référence servant à détecter les noms des personnes identifiées. Elle n'est pas utile aux fonctions de clustering et de similarité qui se basent entièrement sur les photos et n'ont pas besoin de lier l'image à une personne.
 
 Une galerie est un simple dossier, avec un sous-dossier par personne :
 
@@ -80,8 +74,7 @@ Une galerie est un simple dossier, avec un sous-dossier par personne :
 
 - Le nom du sous-dossier est le nom affiché dans Panoptic.
 - Mettez 5 à 20 photos par personne, variées (âges, angles, lumières).
-- Sur chaque photo, la personne doit avoir **le plus grand visage**. Les portraits
-  sont parfaits.
+- Utilisez des images contenant une seule personne bien visible. Type portrait idéalement.
 - Formats acceptés : JPG, PNG, WEBP, BMP, TIFF.
 
 ### Méthode 1 : à la main
@@ -96,10 +89,10 @@ Sans dossier, vous pouvez aussi sélectionner des images dans Panoptic et lancer
 ### Méthode 2 : avec l'outil automatique (personnalités publiques)
 
 L'outil `tools/build_gallery.py` télécharge des photos de personnalités publiques
-depuis des sources ouvertes, puis garde les bonnes.
+depuis des sources ouvertes.
 
 1. Ouvrez un terminal dans le dossier du plugin.
-2. Lancez l'outil avec le Python de Panoptic (il contient déjà InsightFace) :
+2. Lancez l'outil avec le Python de Panoptic :
 
        python tools/build_gallery.py all --contact <votre url ou e-mail>
 
@@ -110,14 +103,12 @@ depuis des sources ouvertes, puis garde les bonnes.
    relancez la même commande : l'outil reprend où il en était.
 4. La galerie est créée dans le dossier `gallery/`. Dans Panoptic, lancez
    **import_gallery** sur ce dossier.
-5. Quand c'est fini, **supprimez le dossier `gallery_cache/`**. Il contient des
-   données personnelles (dates de naissance des élus) qui ne servent plus.
 
 Ce que fait l'outil :
 
 - **Qui ?** Des personnalités publiques : élus français (députés depuis 2012,
   sénateurs, maires des villes de plus de 30 000 habitants), personnalités françaises
-  et mondiales connues. **Seulement des adultes.**
+  et mondiales connues.
 - **D'où viennent les photos ?** Wikidata, Wikimedia Commons, et les portraits
   officiels de l'Assemblée nationale et du Sénat.
 - **Vérification :** chaque photo est comparée au portrait officiel ou au portrait
@@ -125,27 +116,6 @@ Ce que fait l'outil :
 - **Fichiers créés :** `persons.csv` (les personnes et leur parti), `manifest.csv` (la
   source et la licence de chaque photo) et `conflicts.csv` (les personnes qui se
   ressemblent, à vérifier).
-
-## Ce qu'il ne faut jamais partager
-
-Ne publiez jamais, ni sur GitHub, ni par e-mail, ni sur un disque partagé :
-
-| Quoi | Où | Pourquoi |
-|------|----|----------|
-| La galerie | `gallery/` ou votre dossier | photos de personnes, liées à leur nom et à leur parti |
-| Le cache de l'outil | `gallery_cache/` | photos et dates de naissance |
-| Les empreintes de visage | `plugin_data/faces/faces.db` dans le projet Panoptic | données biométriques |
-
-Une **empreinte de visage** (en anglais *embedding*) est une suite de 512 nombres
-calculée à partir d'un visage. Elle permet de reconnaître la personne sur d'autres
-photos : c'est une donnée biométrique, aussi sensible que la photo elle-même. Elle ne
-doit **jamais** quitter votre ordinateur, même sans les photos.
-
-**Vous partagez un projet Panoptic ?** Supprimez d'abord le dossier
-`plugin_data/faces/` du projet (ou lancez **forget_faces** avec `everything` coché).
-
-Ce que vous pouvez partager : le code de ce dépôt et la méthode. Chacun construit
-alors sa propre galerie.
 
 ## Réglages
 
@@ -162,4 +132,3 @@ alors sa propre galerie.
   [LICENSE](LICENSE).
 - Les modèles InsightFace (`buffalo_l`, `buffalo_s`, `antelopev2`) sont réservés à un
   **usage non commercial de recherche**.
-- Les photos d'une galerie gardent leur propre licence, indiquée dans `manifest.csv`.
